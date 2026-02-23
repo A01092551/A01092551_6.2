@@ -1,12 +1,7 @@
 [
   {
     "id": 1,
-    "customer_id": 4,
-    "hotel_id": 4
-  },
-  {
-    "id": 2,
-    "customer_id": 5,
-    "hotel_id": 5
+    "customer_id": 1,
+    "hotel_id": 1
   }
 ]
