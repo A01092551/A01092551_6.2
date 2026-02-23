@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "nombre": "Grand Palace",
+    "estado": "Veracruz",
+    "habitaciones": 100,
+    "habitaciones_disponibles": 100
+  }
+]
