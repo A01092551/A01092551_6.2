@@ -7,7 +7,7 @@ from unittest.mock import patch
 from hotel_reservation import Hotel, Customer, Reservation
 
 
-class TestHotel(unittest.TestCase):
+class TestHotel(unittest.TestCase):  # pylint: disable=too-many-public-methods
     """Test cases for Hotel class."""
 
     def setUp(self):
@@ -145,6 +145,7 @@ class TestHotel(unittest.TestCase):
 
     def test_hotel_load_json_file_not_exists(self):
         """Test loading non-existent JSON file."""
+        # pylint: disable=protected-access
         success, data = Hotel._load_json_file(
             Path("nonexistent.json"), "Test")
         self.assertFalse(success)
@@ -155,6 +156,7 @@ class TestHotel(unittest.TestCase):
         empty_file = self.test_dir / "empty.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         empty_file.write_text("")
+        # pylint: disable=protected-access
         success, data = Hotel._load_json_file(empty_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
@@ -165,6 +167,7 @@ class TestHotel(unittest.TestCase):
         invalid_file = self.test_dir / "invalid.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         invalid_file.write_text("{invalid json")
+        # pylint: disable=protected-access
         success, data = Hotel._load_json_file(invalid_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
@@ -175,6 +178,7 @@ class TestHotel(unittest.TestCase):
         invalid_file = self.test_dir / "invalid_format.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         invalid_file.write_text('{"key": "value"}')
+        # pylint: disable=protected-access
         success, data = Hotel._load_json_file(invalid_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
@@ -292,6 +296,7 @@ class TestCustomer(unittest.TestCase):
 
     def test_customer_load_json_file_not_exists(self):
         """Test loading non-existent JSON file."""
+        # pylint: disable=protected-access
         success, data = Customer._load_json_file(
             Path("nonexistent.json"), "Test")
         self.assertFalse(success)
@@ -302,6 +307,7 @@ class TestCustomer(unittest.TestCase):
         empty_file = self.test_dir / "empty_customer.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         empty_file.write_text("")
+        # pylint: disable=protected-access
         success, data = Customer._load_json_file(empty_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
@@ -312,6 +318,7 @@ class TestCustomer(unittest.TestCase):
         invalid_file = self.test_dir / "invalid_customer.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         invalid_file.write_text("{invalid json")
+        # pylint: disable=protected-access
         success, data = Customer._load_json_file(invalid_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
@@ -322,6 +329,7 @@ class TestCustomer(unittest.TestCase):
         invalid_file = self.test_dir / "invalid_format_customer.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         invalid_file.write_text('{"key": "value"}')
+        # pylint: disable=protected-access
         success, data = Customer._load_json_file(invalid_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
@@ -434,6 +442,7 @@ class TestReservation(unittest.TestCase):
 
     def test_reservation_load_json_file_not_exists(self):
         """Test loading non-existent JSON file."""
+        # pylint: disable=protected-access
         success, data = Reservation._load_json_file(
             Path("nonexistent.json"), "Test")
         self.assertFalse(success)
@@ -444,6 +453,7 @@ class TestReservation(unittest.TestCase):
         empty_file = self.test_dir / "empty_reservation.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         empty_file.write_text("")
+        # pylint: disable=protected-access
         success, data = Reservation._load_json_file(empty_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
@@ -454,6 +464,7 @@ class TestReservation(unittest.TestCase):
         invalid_file = self.test_dir / "invalid_reservation.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         invalid_file.write_text("{invalid json")
+        # pylint: disable=protected-access
         success, data = Reservation._load_json_file(invalid_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
@@ -464,6 +475,7 @@ class TestReservation(unittest.TestCase):
         invalid_file = self.test_dir / "invalid_format_reservation.json"
         self.test_dir.mkdir(parents=True, exist_ok=True)
         invalid_file.write_text('{"key": "value"}')
+        # pylint: disable=protected-access
         success, data = Reservation._load_json_file(invalid_file, "Test")
         self.assertFalse(success)
         self.assertEqual(data, [])
