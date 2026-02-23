@@ -19,5 +19,19 @@
     "estado": "Puebla",
     "habitaciones": 200,
     "habitaciones_disponibles": 200
+  },
+  {
+    "id": 4,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 5,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
   }
 ]
