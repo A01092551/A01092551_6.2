@@ -47,5 +47,12 @@
     "estado": "Puebla",
     "habitaciones": 200,
     "habitaciones_disponibles": 200
+  },
+  {
+    "id": 8,
+    "nombre": "Grand Palace Hotel",
+    "estado": "Veracruz",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
   }
 ]

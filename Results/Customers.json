@@ -10,5 +10,11 @@
     "nombre": "Anuar",
     "email": "Anuar@gmail.com",
     "telefono": "12345678"
+  },
+  {
+    "id": 3,
+    "nombre": "Anuar Olmos Lopez",
+    "email": "anuar.olmos@email.com",
+    "telefono": "2227709000"
   }
 ]

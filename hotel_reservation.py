@@ -1,3 +1,9 @@
+"""Sistema de reservación de hoteles.
+
+Este módulo proporciona clases para gestionar hoteles, clientes y reservaciones.
+Incluye funcionalidades CRUD completas para cada entidad y manejo de persistencia
+en archivos JSON.
+"""
 import json
 from pathlib import Path
 from typing import Optional, Dict
@@ -627,29 +633,56 @@ if __name__ == "__main__":
     hotel2 = Hotel("Fiesta Americana", "Puebla", 200)
     hotel2.create()
 
-    print("\n Mostrar información del hotel")
+    # Mostrar información del hotel
+    print("\n Mostrar Información del Hotel")
     hotel1.display_info()
 
-    print("\n Modificar información del hotel")
-    hotel1.modify_info("Fiesta Americana", "Puebla", 200)
-
-    print("\n Mostrar información del hotel")
+    # Modificar información del hotel
+    print("\n Modificar nombre y No. de habitaciones del hotel")
+    hotel1.modify_info(nombre="Grand Palace Hotel", habitaciones=200)
+    print("\n Verificar cambios ")
     hotel1.display_info()
 
-    print(" Crear cliente")
-    cliente1 = Customer("Anuar", "Anuar@gmail.com", "12345678")
-    cliente1.create()
+    # Crear clientes
+    print("\n Crear Cliente ")
+    customer1 = Customer("Anuar", "anuar@email.com", "2227709000")
+    customer1.create()
+    print("\n Crear Cliente ")
+    customer2 = Customer("Alejandro", "Alejandro@email.com", "2227701234")
+    customer2.create()
 
-    print("\n Mostrar información del cliente")
-    cliente1.display_info()
+    # Mostrar información del cliente
+    print("\n Mostrar Información del Cliente ")
+    customer1.display_info()
 
-    print("\n Crear reservación")
-    reservacion1 = Reservation(cliente1.id, hotel1.id)
-    reservacion1.create()
+    # Modificar información del cliente
+    print("\n Modificar Cliente ")
+    customer1.modify_info(nombre="Anuar Olmos Lopez",
+                          email="anuar.olmos@email.com")
+    print("\n Verificar cambios ")
+    customer1.display_info()
 
-    print("\n Cancelar reservación")
-    reservacion1.cancel()
+    # Crear reservación, utiliza internamente Hotel.reserve_room()
+    print("\n Crear Reservación")
+    reservation1 = Reservation(customer1.id, hotel1.id)
+    reservation1.create()
 
-    print("\n Eliminar hotel")
+    # Verificar habitaciones disponibles
+    print("\n Verificar habitaciones disponibles del hotel")
+    hotel1.display_info()
+
+    # Cancelar reservación
+    print("\n Cancelar reservación 1")
+    reservation1.cancel()
+
+    # Verificar que se liberó la habitación
+    print("\n Verificar habitaciones disponibles del hotel")
+    hotel1.display_info()
+
+    # Eliminar cliente
+    print("\n Eliminar cliente")
+    customer2.delete()
+
+    # Eliminar hotel
+    print("\n Eliminar Hotel")
     hotel2.delete()
-
