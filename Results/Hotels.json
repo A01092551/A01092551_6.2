@@ -5,5 +5,19 @@
     "estado": "Veracruz",
     "habitaciones": 100,
     "habitaciones_disponibles": 100
+  },
+  {
+    "id": 2,
+    "nombre": "Grand Palace",
+    "estado": "Veracruz",
+    "habitaciones": 100,
+    "habitaciones_disponibles": 100
+  },
+  {
+    "id": 3,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
   }
 ]
