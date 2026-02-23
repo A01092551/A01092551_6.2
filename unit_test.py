@@ -197,3 +197,152 @@ class TestHotel(unittest.TestCase):
         with patch('builtins.open', side_effect=IOError("Disk full")):
             result = hotel.create()
             self.assertFalse(result)
+
+
+class TestCustomer(unittest.TestCase):
+    """Test cases for Customer class."""
+
+    def setUp(self):
+        """Set up test fixtures before each test method."""
+        self.test_dir = Path("Results")
+        self.customers_file = self.test_dir / "Customers.json"
+        if self.customers_file.exists():
+            self.customers_file.unlink()
+
+    def tearDown(self):
+        """Clean up test files after each test method."""
+        if self.customers_file.exists():
+            self.customers_file.unlink()
+
+    def test_customer_create_success(self):
+        """Test successful customer creation."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        result = customer.create()
+        self.assertTrue(result)
+        self.assertIsNotNone(customer.id)
+        self.assertEqual(customer.nombre, "John Doe")
+        self.assertEqual(customer.email, "john@email.com")
+        self.assertEqual(customer.telefono, "1234567890")
+
+    def test_customer_create_multiple(self):
+        """Test creating multiple customers with auto-incrementing IDs."""
+        customer1 = Customer("Customer 1", "c1@email.com", "1111111111")
+        customer2 = Customer("Customer 2", "c2@email.com", "2222222222")
+        customer1.create()
+        customer2.create()
+        self.assertEqual(customer2.id, customer1.id + 1)
+
+    def test_customer_delete_success(self):
+        """Test successful customer deletion."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        customer.create()
+        result = customer.delete()
+        self.assertTrue(result)
+
+    def test_customer_delete_nonexistent(self):
+        """Test deleting a non-existent customer."""
+        customer = Customer("John Doe", "john@email.com", "1234567890",
+                            customer_id=9999)
+        result = customer.delete()
+        self.assertFalse(result)
+
+    def test_customer_display_info_success(self):
+        """Test displaying customer information."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        customer.create()
+        info = customer.display_info()
+        self.assertIsInstance(info, dict)
+        self.assertEqual(info['nombre'], "John Doe")
+        self.assertEqual(info['email'], "john@email.com")
+        self.assertEqual(info['telefono'], "1234567890")
+
+    def test_customer_display_info_nonexistent(self):
+        """Test displaying info for non-existent customer."""
+        customer = Customer("John Doe", "john@email.com", "1234567890",
+                            customer_id=9999)
+        info = customer.display_info()
+        self.assertEqual(info, {})
+
+    def test_customer_modify_info_success(self):
+        """Test successful customer information modification."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        customer.create()
+        result = customer.modify_info(nombre="Jane Doe",
+                                       email="jane@email.com",
+                                       telefono="0987654321")
+        self.assertTrue(result)
+        self.assertEqual(customer.nombre, "Jane Doe")
+        self.assertEqual(customer.email, "jane@email.com")
+        self.assertEqual(customer.telefono, "0987654321")
+
+    def test_customer_modify_info_partial(self):
+        """Test partial modification of customer information."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        customer.create()
+        result = customer.modify_info(email="newemail@email.com")
+        self.assertTrue(result)
+        self.assertEqual(customer.email, "newemail@email.com")
+        self.assertEqual(customer.nombre, "John Doe")
+
+    def test_customer_modify_info_nonexistent(self):
+        """Test modifying non-existent customer."""
+        customer = Customer("John Doe", "john@email.com", "1234567890",
+                            customer_id=9999)
+        result = customer.modify_info(nombre="Modified")
+        self.assertFalse(result)
+
+    def test_customer_load_json_file_not_exists(self):
+        """Test loading non-existent JSON file."""
+        success, data = Customer._load_json_file(Path("nonexistent.json"),
+                                                  "Test")
+        self.assertFalse(success)
+        self.assertEqual(data, [])
+
+    def test_customer_load_json_file_empty(self):
+        """Test loading empty JSON file."""
+        empty_file = self.test_dir / "empty_customer.json"
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        empty_file.write_text("")
+        success, data = Customer._load_json_file(empty_file, "Test")
+        self.assertFalse(success)
+        self.assertEqual(data, [])
+        empty_file.unlink()
+
+    def test_customer_load_json_file_invalid_json(self):
+        """Test loading invalid JSON file."""
+        invalid_file = self.test_dir / "invalid_customer.json"
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        invalid_file.write_text("{invalid json")
+        success, data = Customer._load_json_file(invalid_file, "Test")
+        self.assertFalse(success)
+        self.assertEqual(data, [])
+        invalid_file.unlink()
+
+    def test_customer_load_json_file_invalid_format(self):
+        """Test loading JSON file with invalid format (not a list)."""
+        invalid_file = self.test_dir / "invalid_format_customer.json"
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        invalid_file.write_text('{"key": "value"}')
+        success, data = Customer._load_json_file(invalid_file, "Test")
+        self.assertFalse(success)
+        self.assertEqual(data, [])
+        invalid_file.unlink()
+
+    def test_customer_create_with_invalid_existing_data(self):
+        """Test customer creation with corrupted existing data."""
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        self.customers_file.write_text('[{"invalid": "data"}]')
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        result = customer.create()
+        self.assertTrue(result)
+
+    def test_customer_create_io_error(self):
+        """Test customer creation with IO error."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        with patch('builtins.open', side_effect=IOError("Disk full")):
+            result = customer.create()
+            self.assertFalse(result)
+
+
+if __name__ == '__main__':
+    unittest.main()
