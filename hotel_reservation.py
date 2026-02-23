@@ -469,6 +469,153 @@ class Customer:
             print(f"Error al escribir en archivo: {error}")
             return False
 
+class Reservation:
+    """Clase para gestionar reservaciones.
+
+
+    """
+    output_dir = Path("Results")
+
+    @staticmethod
+    def _load_json_file(file_path: Path, file_type: str):
+        """Carga y valida un archivo JSON."""
+        if not file_path.exists():
+            print(f"Error: El archivo {file_type}.json no existe.")
+            return False, []
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read().strip()
+                if not content:
+                    print("Error: El archivo está vacío.")
+                    return False, []
+                data = json.loads(content)
+                if not isinstance(data, list):
+                    print(f"Error: Invalid data format in {file_type}.json.")
+                    return False, []
+                return True, data
+        except json.JSONDecodeError as e:
+            print(f"Error: Invalid JSON in {file_type}.json: {e}")
+            return False, []
+
+    def __init__(self, customer_id: int, hotel_id: int,
+                 reservation_id: Optional[int] = None):
+        self.id = reservation_id
+        self.customer_id = customer_id
+        self.hotel_id = hotel_id
+
+    def create(self) -> bool:
+        """Crea una nueva reservación.
+
+        """
+        try:
+            customer = Customer(nombre="", email="", telefono="",
+                                customer_id=self.customer_id)
+            customer_info = customer.display_info()
+            if not customer_info:
+                print(f"Error: Cliente con ID {self.customer_id} no existe.")
+                return False
+
+            hotel = Hotel(nombre="", estado="", habitaciones=0,
+                          hotel_id=self.hotel_id)
+            hotel_info = hotel.display_info()
+            if not hotel_info:
+                print(f"Error: Hotel con ID {self.hotel_id} no existe.")
+                return False
+
+            if not hotel.reserve_room(self.customer_id):
+                return False
+
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            output_file = self.output_dir / "Reservations.json"
+
+            reservations = []
+            if output_file.exists():
+                try:
+                    with open(output_file, 'r', encoding='utf-8') as file:
+                        content = file.read().strip()
+                        if content:
+                            reservations = json.loads(content)
+                            if not isinstance(reservations, list):
+                                print("Error: Invalid data format in "
+                                      "Reservations.json. Expected a list. "
+                                      "Continuing with empty list.")
+                                reservations = []
+                except json.JSONDecodeError as e:
+                    print(f"Error: Invalid JSON in Reservations.json: {e}. "
+                          "Continuing with empty list.")
+                    reservations = []
+
+            new_id = 1
+            if reservations:
+                try:
+                    max_id = max(
+                        r.get('id', 0) for r in reservations
+                        if isinstance(r, dict)
+                    )
+                    new_id = max_id + 1
+                except (ValueError, TypeError) as e:
+                    print(f"Error calculating next ID: {e}. Using ID 1.")
+
+            self.id = new_id
+
+            reservation_data = {
+                'id': self.id,
+                'customer_id': self.customer_id,
+                'hotel_id': self.hotel_id
+            }
+            reservations.append(reservation_data)
+
+            with open(output_file, 'w', encoding='utf-8') as file:
+                json.dump(reservations, file, indent=2, ensure_ascii=False)
+
+            print(f"Reservación creada: ID {self.id}, "
+                  f"Cliente {self.customer_id}, Hotel {self.hotel_id}")
+            return True
+
+        except (IOError, OSError) as error:
+            print(f"Error al escribir en archivo: {error}")
+            return False
+
+    def cancel(self) -> bool:
+        """Cancela una reservación.
+
+        """
+        output_file = self.output_dir / "Reservations.json"
+        success, reservations = self._load_json_file(output_file,
+                                                      "Reservations")
+
+        if not success:
+            return False
+
+        reservation_found = None
+        for reservation in reservations:
+            if (isinstance(reservation, dict) and
+                    reservation.get('id') == self.id):
+                reservation_found = reservation
+                break
+
+        if not reservation_found:
+            print(f"Error: No se encontró reservación con ID {self.id}")
+            return False
+
+        hotel = Hotel(nombre="", estado="", habitaciones=0,
+                      hotel_id=reservation_found['hotel_id'])
+        if not hotel.cancel_reservation(reservation_found['customer_id']):
+            return False
+
+        reservations = [r for r in reservations
+                        if isinstance(r, dict) and
+                        r.get('id') != self.id]
+
+        try:
+            with open(output_file, 'w', encoding='utf-8') as file:
+                json.dump(reservations, file, indent=2, ensure_ascii=False)
+            print(f"Reservación con ID {self.id} cancelada correctamente.")
+            return True
+        except (IOError, OSError) as error:
+            print(f"Error al escribir en archivo: {error}")
+            return False
+
 if __name__ == "__main__":
     print("\n Sistema de reservación de hoteles")
 
@@ -495,6 +642,13 @@ if __name__ == "__main__":
 
     print("\n Mostrar información del cliente")
     cliente1.display_info()
+
+    print("\n Crear reservación")
+    reservacion1 = Reservation(cliente1.id, hotel1.id)
+    reservacion1.create()
+
+    print("\n Cancelar reservación")
+    reservacion1.cancel()
 
     print("\n Eliminar hotel")
     hotel2.delete()
