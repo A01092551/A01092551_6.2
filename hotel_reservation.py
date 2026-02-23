@@ -288,6 +288,187 @@ class Hotel:
             print(f"Error al escribir en archivo: {error}")
             return False
 
+class Customer:
+    """Clase para gestionar clientes.
+
+    """
+    output_dir = Path("Results")
+
+    @staticmethod
+    def _load_json_file(file_path: Path, file_type: str):
+        """Carga y valida un archivo JSON."""
+        if not file_path.exists():
+            print(f"Error: El archivo {file_type}.json no existe.")
+            return False, []
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read().strip()
+                if not content:
+                    print("Error: El archivo está vacío.")
+                    return False, []
+                data = json.loads(content)
+                if not isinstance(data, list):
+                    print(f"Error: Invalid data format in {file_type}.json.")
+                    return False, []
+                return True, data
+        except json.JSONDecodeError as e:
+            print(f"Error: Invalid JSON in {file_type}.json: {e}")
+            return False, []
+
+    def __init__(self, nombre: str, email: str, telefono: str,
+                 customer_id: Optional[int] = None):
+        self.id = customer_id
+        self.nombre = nombre
+        self.email = email
+        self.telefono = telefono
+
+    def create(self) -> bool:
+        """Crea un nuevo cliente y lo guarda en Customers.json.
+
+        """
+        try:
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            output_file = self.output_dir / "Customers.json"
+
+            customers = []
+            if output_file.exists():
+                try:
+                    with open(output_file, 'r', encoding='utf-8') as file:
+                        content = file.read().strip()
+                        if content:
+                            customers = json.loads(content)
+                            if not isinstance(customers, list):
+                                print("Error: Invalid data format in "
+                                      "Customers.json. Expected a list. "
+                                      "Continuing with empty list.")
+                                customers = []
+                except json.JSONDecodeError as e:
+                    print(f"Error: Invalid JSON in Customers.json: "
+                          f"{e}. Continuing with empty list.")
+                    customers = []
+
+            new_id = 1
+            if customers:
+                try:
+                    max_id = max(
+                        c.get('id', 0) for c in customers
+                        if isinstance(c, dict)
+                    )
+                    new_id = max_id + 1
+                except (ValueError, TypeError) as e:
+                    print(f"Error calculating next ID: {e}. Using ID 1.")
+
+            self.id = new_id
+
+            customer_data = {
+                'id': self.id,
+                'nombre': self.nombre,
+                'email': self.email,
+                'telefono': self.telefono
+            }
+            customers.append(customer_data)
+
+            with open(output_file, 'w', encoding='utf-8') as file:
+                json.dump(customers, file, indent=2, ensure_ascii=False)
+
+            print(f"Cliente creado: ID {self.id}, {self.nombre}")
+            return True
+
+        except (IOError, OSError) as error:
+            print(f"Error al escribir en archivo: {error}")
+            return False
+
+    def delete(self) -> bool:
+        """Elimina un cliente.
+
+        """
+        output_file = self.output_dir / "Customers.json"
+        success, customers = self._load_json_file(output_file, "Customers")
+
+        if not success:
+            return False
+
+        initial_count = len(customers)
+        customers = [c for c in customers
+                     if isinstance(c, dict) and
+                     c.get('id') != self.id]
+
+        if len(customers) == initial_count:
+            print(f"Error: No se encontró cliente con ID {self.id}")
+            return False
+
+        try:
+            with open(output_file, 'w', encoding='utf-8') as file:
+                json.dump(customers, file, indent=2, ensure_ascii=False)
+            print(f"Cliente con ID {self.id} eliminado correctamente.")
+            return True
+        except (IOError, OSError) as error:
+            print(f"Error al escribir en archivo: {error}")
+            return False
+
+    def display_info(self) -> Dict:
+        """Muestra la información del cliente.
+
+        """
+        output_file = self.output_dir / "Customers.json"
+        success, customers = self._load_json_file(output_file, "Customers")
+
+        if not success:
+            return {}
+
+        for customer in customers:
+            if (isinstance(customer, dict) and
+                    customer.get('id') == self.id):
+                print(f"Cliente ID: {customer.get('id')}")
+                print(f"Nombre: {customer.get('nombre')}")
+                print(f"Email: {customer.get('email')}")
+                print(f"Teléfono: {customer.get('telefono')}")
+                return customer
+
+        print(f"Error: No se encontró cliente con ID {self.id}")
+        return {}
+
+    def modify_info(self, nombre: Optional[str] = None,
+                    email: Optional[str] = None,
+                    telefono: Optional[str] = None) -> bool:
+        """Modifica la información del cliente.
+
+        """
+        output_file = self.output_dir / "Customers.json"
+        success, customers = self._load_json_file(output_file, "Customers")
+
+        if not success:
+            return False
+
+        customer_found = False
+        for customer in customers:
+            if (isinstance(customer, dict) and
+                    customer.get('id') == self.id):
+                if nombre is not None:
+                    customer['nombre'] = nombre
+                    self.nombre = nombre
+                if email is not None:
+                    customer['email'] = email
+                    self.email = email
+                if telefono is not None:
+                    customer['telefono'] = telefono
+                    self.telefono = telefono
+                customer_found = True
+                break
+
+        if not customer_found:
+            print(f"Error: No se encontró cliente con ID {self.id}")
+            return False
+
+        try:
+            with open(output_file, 'w', encoding='utf-8') as file:
+                json.dump(customers, file, indent=2, ensure_ascii=False)
+            print(f"Cliente con ID {self.id} modificado correctamente.")
+            return True
+        except (IOError, OSError) as error:
+            print(f"Error al escribir en archivo: {error}")
+            return False
+
 if __name__ == "__main__":
     print("\n Sistema de reservación de hoteles")
 
@@ -308,6 +489,12 @@ if __name__ == "__main__":
     print("\n Mostrar información del hotel")
     hotel1.display_info()
 
+    print(" Crear cliente")
+    cliente1 = Customer("Anuar", "Anuar@gmail.com", "12345678")
+    cliente1.create()
+
+    print("\n Mostrar información del cliente")
+    cliente1.display_info()
 
     print("\n Eliminar hotel")
     hotel2.delete()
