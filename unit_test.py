@@ -197,4 +197,3 @@ class TestHotel(unittest.TestCase):
         with patch('builtins.open', side_effect=IOError("Disk full")):
             result = hotel.create()
             self.assertFalse(result)
-
