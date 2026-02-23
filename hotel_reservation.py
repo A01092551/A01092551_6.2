@@ -1,8 +1,8 @@
 """Sistema de reservación de hoteles.
 
-Este módulo proporciona clases para gestionar hoteles, clientes y reservaciones.
-Incluye funcionalidades CRUD completas para cada entidad y manejo de persistencia
-en archivos JSON.
+Este módulo proporciona clases para gestionar hoteles, clientes y
+reservaciones. Incluye funcionalidades CRUD completas para cada entidad
+y manejo de persistencia en archivos JSON.
 """
 import json
 from pathlib import Path
@@ -215,9 +215,6 @@ class Hotel:
     def reserve_room(self, customer_id: int) -> bool:
         """Reserva una habitación en el hotel.
 
-    
-
-
         """
         output_file = self.output_dir / "Hotels.json"
         success, hotels = self._load_json_file(output_file, "Hotels")
@@ -293,6 +290,7 @@ class Hotel:
         except (IOError, OSError) as error:
             print(f"Error al escribir en archivo: {error}")
             return False
+
 
 class Customer:
     """Clase para gestionar clientes.
@@ -475,6 +473,7 @@ class Customer:
             print(f"Error al escribir en archivo: {error}")
             return False
 
+
 class Reservation:
     """Clase para gestionar reservaciones.
 
@@ -587,8 +586,8 @@ class Reservation:
 
         """
         output_file = self.output_dir / "Reservations.json"
-        success, reservations = self._load_json_file(output_file,
-                                                      "Reservations")
+        success, reservations = self._load_json_file(
+            output_file, "Reservations")
 
         if not success:
             return False
@@ -621,6 +620,7 @@ class Reservation:
         except (IOError, OSError) as error:
             print(f"Error al escribir en archivo: {error}")
             return False
+
 
 if __name__ == "__main__":
     print("\n Sistema de reservación de hoteles")

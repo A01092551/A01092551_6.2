@@ -1,0 +1,200 @@
+"""Unit tests para hotel reservation.
+
+"""
+import unittest
+import json
+import os
+from pathlib import Path
+from unittest.mock import patch, mock_open
+from hotel_reservation import Hotel, Customer, Reservation
+
+
+class TestHotel(unittest.TestCase):
+    """Test cases for Hotel class."""
+
+    def setUp(self):
+        """Set up test fixtures before each test method."""
+        self.test_dir = Path("Results")
+        self.hotels_file = self.test_dir / "Hotels.json"
+        # Clean up test files before each test
+        if self.hotels_file.exists():
+            self.hotels_file.unlink()
+
+    def tearDown(self):
+        """Clean up test files after each test method."""
+        if self.hotels_file.exists():
+            self.hotels_file.unlink()
+
+    def test_hotel_create_success(self):
+        """Test successful hotel creation."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        result = hotel.create()
+        self.assertTrue(result)
+        self.assertIsNotNone(hotel.id)
+        self.assertEqual(hotel.nombre, "Test Hotel")
+        self.assertEqual(hotel.estado, "Test State")
+        self.assertEqual(hotel.habitaciones, 50)
+        self.assertEqual(hotel.habitaciones_disponibles, 50)
+
+    def test_hotel_create_multiple(self):
+        """Test creating multiple hotels with auto-incrementing IDs."""
+        hotel1 = Hotel("Hotel 1", "State 1", 100)
+        hotel2 = Hotel("Hotel 2", "State 2", 200)
+        hotel1.create()
+        hotel2.create()
+        self.assertEqual(hotel2.id, hotel1.id + 1)
+
+    def test_hotel_delete_success(self):
+        """Test successful hotel deletion."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        hotel_id = hotel.id
+        result = hotel.delete()
+        self.assertTrue(result)
+
+    def test_hotel_delete_nonexistent(self):
+        """Test deleting a non-existent hotel."""
+        hotel = Hotel("Test Hotel", "Test State", 50, hotel_id=9999)
+        result = hotel.delete()
+        self.assertFalse(result)
+
+    def test_hotel_display_info_success(self):
+        """Test displaying hotel information."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        info = hotel.display_info()
+        self.assertIsInstance(info, dict)
+        self.assertEqual(info['nombre'], "Test Hotel")
+        self.assertEqual(info['estado'], "Test State")
+        self.assertEqual(info['habitaciones'], 50)
+
+    def test_hotel_display_info_nonexistent(self):
+        """Test displaying info for non-existent hotel."""
+        hotel = Hotel("Test Hotel", "Test State", 50, hotel_id=9999)
+        info = hotel.display_info()
+        self.assertEqual(info, {})
+
+    def test_hotel_modify_info_success(self):
+        """Test successful hotel information modification."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        result = hotel.modify_info(nombre="Modified Hotel",
+                                    estado="Modified State",
+                                    habitaciones=100)
+        self.assertTrue(result)
+        self.assertEqual(hotel.nombre, "Modified Hotel")
+        self.assertEqual(hotel.estado, "Modified State")
+        self.assertEqual(hotel.habitaciones, 100)
+
+    def test_hotel_modify_info_partial(self):
+        """Test partial modification of hotel information."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        result = hotel.modify_info(nombre="New Name")
+        self.assertTrue(result)
+        self.assertEqual(hotel.nombre, "New Name")
+        self.assertEqual(hotel.estado, "Test State")
+
+    def test_hotel_modify_info_nonexistent(self):
+        """Test modifying non-existent hotel."""
+        hotel = Hotel("Test Hotel", "Test State", 50, hotel_id=9999)
+        result = hotel.modify_info(nombre="Modified")
+        self.assertFalse(result)
+
+    def test_hotel_reserve_room_success(self):
+        """Test successful room reservation."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        result = hotel.reserve_room(customer_id=1)
+        self.assertTrue(result)
+        self.assertEqual(hotel.habitaciones_disponibles, 49)
+
+    def test_hotel_reserve_room_no_availability(self):
+        """Test room reservation when no rooms available."""
+        hotel = Hotel("Test Hotel", "Test State", 0)
+        hotel.create()
+        result = hotel.reserve_room(customer_id=1)
+        self.assertFalse(result)
+
+    def test_hotel_reserve_room_nonexistent(self):
+        """Test reserving room in non-existent hotel."""
+        hotel = Hotel("Test Hotel", "Test State", 50, hotel_id=9999)
+        result = hotel.reserve_room(customer_id=1)
+        self.assertFalse(result)
+
+    def test_hotel_cancel_reservation_success(self):
+        """Test successful reservation cancellation."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        hotel.reserve_room(customer_id=1)
+        initial_available = hotel.habitaciones_disponibles
+        result = hotel.cancel_reservation(customer_id=1)
+        self.assertTrue(result)
+        self.assertEqual(hotel.habitaciones_disponibles, initial_available + 1)
+
+    def test_hotel_cancel_reservation_no_reservations(self):
+        """Test canceling reservation when none exist."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        result = hotel.cancel_reservation(customer_id=1)
+        self.assertFalse(result)
+
+    def test_hotel_cancel_reservation_nonexistent(self):
+        """Test canceling reservation in non-existent hotel."""
+        hotel = Hotel("Test Hotel", "Test State", 50, hotel_id=9999)
+        result = hotel.cancel_reservation(customer_id=1)
+        self.assertFalse(result)
+
+    def test_hotel_load_json_file_not_exists(self):
+        """Test loading non-existent JSON file."""
+        success, data = Hotel._load_json_file(Path("nonexistent.json"),
+                                               "Test")
+        self.assertFalse(success)
+        self.assertEqual(data, [])
+
+    def test_hotel_load_json_file_empty(self):
+        """Test loading empty JSON file."""
+        empty_file = self.test_dir / "empty.json"
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        empty_file.write_text("")
+        success, data = Hotel._load_json_file(empty_file, "Test")
+        self.assertFalse(success)
+        self.assertEqual(data, [])
+        empty_file.unlink()
+
+    def test_hotel_load_json_file_invalid_json(self):
+        """Test loading invalid JSON file."""
+        invalid_file = self.test_dir / "invalid.json"
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        invalid_file.write_text("{invalid json")
+        success, data = Hotel._load_json_file(invalid_file, "Test")
+        self.assertFalse(success)
+        self.assertEqual(data, [])
+        invalid_file.unlink()
+
+    def test_hotel_load_json_file_invalid_format(self):
+        """Test loading JSON file with invalid format (not a list)."""
+        invalid_file = self.test_dir / "invalid_format.json"
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        invalid_file.write_text('{"key": "value"}')
+        success, data = Hotel._load_json_file(invalid_file, "Test")
+        self.assertFalse(success)
+        self.assertEqual(data, [])
+        invalid_file.unlink()
+
+    def test_hotel_create_with_invalid_existing_data(self):
+        """Test hotel creation with corrupted existing data."""
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        self.hotels_file.write_text('{"invalid": "data"}')
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        result = hotel.create()
+        self.assertTrue(result)
+        self.assertEqual(hotel.id, 1)
+
+    def test_hotel_create_io_error(self):
+        """Test hotel creation with IO error."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        with patch('builtins.open', side_effect=IOError("Disk full")):
+            result = hotel.create()
+            self.assertFalse(result)
+
