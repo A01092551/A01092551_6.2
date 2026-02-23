@@ -667,13 +667,17 @@ if __name__ == "__main__":
     reservation1 = Reservation(customer1.id, hotel1.id)
     reservation1.create()
 
+    print("\n Crear Reservación2")
+    reservation2 = Reservation(customer2.id, hotel2.id)
+    reservation2.create()
+
     # Verificar habitaciones disponibles
     print("\n Verificar habitaciones disponibles del hotel")
     hotel1.display_info()
 
     # Cancelar reservación
     print("\n Cancelar reservación 1")
-    reservation1.cancel()
+    reservation2.cancel()
 
     # Verificar que se liberó la habitación
     print("\n Verificar habitaciones disponibles del hotel")
