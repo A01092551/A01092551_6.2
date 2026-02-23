@@ -5,5 +5,19 @@
     "estado": "Veracruz",
     "habitaciones": 200,
     "habitaciones_disponibles": 200
+  },
+  {
+    "id": 2,
+    "nombre": "Grand Palace Hotel",
+    "estado": "Veracruz",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 3,
+    "nombre": "Grand Palace Hotel",
+    "estado": "Veracruz",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
   }
 ]
