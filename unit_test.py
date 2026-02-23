@@ -200,6 +200,43 @@ class TestHotel(unittest.TestCase):  # pylint: disable=too-many-public-methods
             result = hotel.create()
             self.assertFalse(result)
 
+    def test_hotel_delete_io_error(self):
+        """Test hotel deletion with IO error during write."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        original_open = open
+
+        def selective_open(*args, **kwargs):
+            if 'w' in args[1] if len(args) > 1 else kwargs.get('mode', 'r'):
+                raise IOError("Disk full")
+            return original_open(*args, **kwargs)
+        with patch('builtins.open', side_effect=selective_open):
+            result = hotel.delete()
+            self.assertFalse(result)
+
+    def test_hotel_modify_info_io_error(self):
+        """Test hotel modification with IO error during write."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        original_open = open
+
+        def selective_open(*args, **kwargs):
+            if 'w' in args[1] if len(args) > 1 else kwargs.get('mode', 'r'):
+                raise IOError("Disk full")
+            return original_open(*args, **kwargs)
+        with patch('builtins.open', side_effect=selective_open):
+            result = hotel.modify_info(nombre="New Name")
+            self.assertFalse(result)
+
+    def test_hotel_create_with_invalid_id_calculation(self):
+        """Test hotel creation with invalid ID calculation error."""
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        self.hotels_file.write_text('[{"id": "invalid"}, {"id": null}]')
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        result = hotel.create()
+        self.assertTrue(result)
+        self.assertEqual(hotel.id, 1)
+
 
 class TestCustomer(unittest.TestCase):
     """Test cases for Customer class."""
@@ -350,6 +387,43 @@ class TestCustomer(unittest.TestCase):
             result = customer.create()
             self.assertFalse(result)
 
+    def test_customer_delete_io_error(self):
+        """Test customer deletion with IO error during write."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        customer.create()
+        original_open = open
+
+        def selective_open(*args, **kwargs):
+            if 'w' in args[1] if len(args) > 1 else kwargs.get('mode', 'r'):
+                raise IOError("Disk full")
+            return original_open(*args, **kwargs)
+        with patch('builtins.open', side_effect=selective_open):
+            result = customer.delete()
+            self.assertFalse(result)
+
+    def test_customer_modify_info_io_error(self):
+        """Test customer modification with IO error during write."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        customer.create()
+        original_open = open
+
+        def selective_open(*args, **kwargs):
+            if 'w' in args[1] if len(args) > 1 else kwargs.get('mode', 'r'):
+                raise IOError("Disk full")
+            return original_open(*args, **kwargs)
+        with patch('builtins.open', side_effect=selective_open):
+            result = customer.modify_info(nombre="New Name")
+            self.assertFalse(result)
+
+    def test_customer_create_with_invalid_id_calculation(self):
+        """Test customer creation with invalid ID calculation error."""
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        self.customers_file.write_text('[{"id": "invalid"}, {"id": null}]')
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        result = customer.create()
+        self.assertTrue(result)
+        self.assertEqual(customer.id, 1)
+
 
 class TestReservation(unittest.TestCase):
     """Test cases for Reservation class."""
@@ -496,6 +570,29 @@ class TestReservation(unittest.TestCase):
             with patch('builtins.open', side_effect=IOError("Disk full")):
                 result = reservation.create()
                 self.assertFalse(result)
+
+    def test_reservation_cancel_io_error(self):
+        """Test reservation cancellation with IO error during write."""
+        reservation = Reservation(self.customer.id, self.hotel.id)
+        reservation.create()
+        original_open = open
+
+        def selective_open(*args, **kwargs):
+            if 'w' in args[1] if len(args) > 1 else kwargs.get('mode', 'r'):
+                raise IOError("Disk full")
+            return original_open(*args, **kwargs)
+        with patch('builtins.open', side_effect=selective_open):
+            result = reservation.cancel()
+            self.assertFalse(result)
+
+    def test_reservation_create_with_invalid_id_calculation(self):
+        """Test reservation creation with invalid ID calculation."""
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        self.reservations_file.write_text('[{"id": "invalid"}, {"id": null}]')
+        reservation = Reservation(self.customer.id, self.hotel.id)
+        result = reservation.create()
+        self.assertTrue(result)
+        self.assertEqual(reservation.id, 1)
 
 
 class TestIntegration(unittest.TestCase):
