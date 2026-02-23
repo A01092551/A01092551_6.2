@@ -119,6 +119,65 @@ class Hotel:
             print(f"Error al escribir en archivo: {error}")
             return False
 
+    def delete(self) -> bool:
+        """Elimina el hotel del archivo Hotels.json.
+
+        Returns:
+            bool: True si se eliminó exitosamente, False en caso contrario.
+        """
+        output_file = self.output_dir / "Hotels.json"
+        success, hotels = self._load_json_file(output_file, "Hotels")
+
+        if not success:
+            return False
+
+        initial_count = len(hotels)
+        hotels = [
+            h for h in hotels
+            if isinstance(h, dict) and h.get('id') != self.id
+        ]
+
+        if len(hotels) == initial_count:
+            print(f"Error: No se encontró hotel con ID {self.id}")
+            return False
+
+        try:
+            with open(output_file, 'w', encoding='utf-8') as file:
+                json.dump(hotels, file, indent=2, ensure_ascii=False)
+            print(f"Hotel con ID {self.id} eliminado correctamente.")
+            return True
+        except (IOError, OSError) as error:
+            print(f"Error al escribir en archivo: {error}")
+            return False
+
+    def display_info(self) -> Dict:
+        """Muestra la información del hotel.
+
+        Returns:
+            Dict: Diccionario con la información del hotel o {} si no existe.
+        """
+        output_file = self.output_dir / "Hotels.json"
+        success, hotels = self._load_json_file(output_file, "Hotels")
+
+        if not success:
+            return {}
+
+        for hotel in hotels:
+            if isinstance(hotel, dict) and hotel.get('id') == self.id:
+                print(f"Hotel ID: {hotel.get('id')}")
+                print(f"Nombre: {hotel.get('nombre')}")
+                print(f"Estado: {hotel.get('estado')}")
+                print(
+                    f"Habitaciones totales: "
+                    f"{hotel.get('habitaciones')}"
+                )
+                print(f"Habitaciones disponibles: "
+                      f"{hotel.get('habitaciones_disponibles')}")
+                return hotel
+
+        print(f"Error: No se encontró hotel con ID {self.id}")
+        return {}
+
 if __name__ == "__main__":
     print("\n Sistema de reservación de hoteles")
 
@@ -129,3 +188,11 @@ if __name__ == "__main__":
     print("\n Crear Hotel ")
     hotel2 = Hotel("Fiesta Americana", "Puebla", 200)
     hotel2.create()
+
+    print("\n Mostrar información del hotel")
+    hotel1.display_info()
+    hotel2.display_info()
+
+    print("\n Eliminar hotel")
+    hotel1.delete()
+    hotel2.delete()
