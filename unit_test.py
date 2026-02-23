@@ -274,8 +274,41 @@ class TestHotel(unittest.TestCase):  # pylint: disable=too-many-public-methods
             result = hotel.cancel_reservation(customer_id=1)
             self.assertFalse(result)
 
+    def test_hotel_delete_not_found_in_file(self):
+        """Test deleting hotel that exists in memory but not in file."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        hotel.id = 9999
+        result = hotel.delete()
+        self.assertFalse(result)
 
-class TestCustomer(unittest.TestCase):  # pylint: disable=too-many-public-methods
+    def test_hotel_modify_info_not_found_in_file(self):
+        """Test modifying hotel that exists in memory but not in file."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        hotel.id = 9999
+        result = hotel.modify_info(nombre="New Name")
+        self.assertFalse(result)
+
+    def test_hotel_reserve_room_not_found_in_file(self):
+        """Test reserving room in hotel that exists but not in file."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        hotel.id = 9999
+        result = hotel.reserve_room(customer_id=1)
+        self.assertFalse(result)
+
+    def test_hotel_cancel_reservation_not_found_in_file(self):
+        """Test canceling reservation in hotel that exists but not in file."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        hotel.id = 9999
+        result = hotel.cancel_reservation(customer_id=1)
+        self.assertFalse(result)
+
+
+class TestCustomer(unittest.TestCase):
+    # pylint: disable=too-many-public-methods
     """Test cases for Customer class."""
 
     def setUp(self):
@@ -470,6 +503,22 @@ class TestCustomer(unittest.TestCase):  # pylint: disable=too-many-public-method
         self.assertTrue(result)
         self.assertEqual(customer.id, 1)
 
+    def test_customer_delete_not_found_in_file(self):
+        """Test deleting customer that exists in memory but not in file."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        customer.create()
+        customer.id = 9999
+        result = customer.delete()
+        self.assertFalse(result)
+
+    def test_customer_modify_info_not_found_in_file(self):
+        """Test modifying customer that exists in memory but not in file."""
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        customer.create()
+        customer.id = 9999
+        result = customer.modify_info(nombre="New Name")
+        self.assertFalse(result)
+
 
 class TestReservation(unittest.TestCase):
     """Test cases for Reservation class."""
@@ -648,6 +697,14 @@ class TestReservation(unittest.TestCase):
         result = reservation.create()
         self.assertTrue(result)
         self.assertEqual(reservation.id, 1)
+
+    def test_reservation_cancel_not_found_in_file(self):
+        """Test canceling reservation that exists in memory but not in file."""
+        reservation = Reservation(self.customer.id, self.hotel.id)
+        reservation.create()
+        reservation.id = 9999
+        result = reservation.cancel()
+        self.assertFalse(result)
 
 
 class TestIntegration(unittest.TestCase):
