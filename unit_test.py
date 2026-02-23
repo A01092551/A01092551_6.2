@@ -237,8 +237,45 @@ class TestHotel(unittest.TestCase):  # pylint: disable=too-many-public-methods
         self.assertTrue(result)
         self.assertEqual(hotel.id, 1)
 
+    def test_hotel_create_with_json_decode_error(self):
+        """Test hotel creation with JSONDecodeError."""
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        self.hotels_file.write_text('{"not": "a list"')
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        result = hotel.create()
+        self.assertTrue(result)
+        self.assertEqual(hotel.id, 1)
 
-class TestCustomer(unittest.TestCase):
+    def test_hotel_reserve_room_io_error(self):
+        """Test reserve_room with IO error during write."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        original_open = open
+
+        def selective_open(*args, **kwargs):
+            if 'w' in args[1] if len(args) > 1 else kwargs.get('mode', 'r'):
+                raise IOError("Disk full")
+            return original_open(*args, **kwargs)
+        with patch('builtins.open', side_effect=selective_open):
+            result = hotel.reserve_room(customer_id=1)
+            self.assertFalse(result)
+
+    def test_hotel_cancel_reservation_io_error(self):
+        """Test cancel_reservation with IO error during write."""
+        hotel = Hotel("Test Hotel", "Test State", 50)
+        hotel.create()
+        original_open = open
+
+        def selective_open(*args, **kwargs):
+            if 'w' in args[1] if len(args) > 1 else kwargs.get('mode', 'r'):
+                raise IOError("Disk full")
+            return original_open(*args, **kwargs)
+        with patch('builtins.open', side_effect=selective_open):
+            result = hotel.cancel_reservation(customer_id=1)
+            self.assertFalse(result)
+
+
+class TestCustomer(unittest.TestCase):  # pylint: disable=too-many-public-methods
     """Test cases for Customer class."""
 
     def setUp(self):
@@ -424,6 +461,15 @@ class TestCustomer(unittest.TestCase):
         self.assertTrue(result)
         self.assertEqual(customer.id, 1)
 
+    def test_customer_create_with_json_decode_error(self):
+        """Test customer creation with JSONDecodeError."""
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        self.customers_file.write_text('{"not": "a list"')
+        customer = Customer("John Doe", "john@email.com", "1234567890")
+        result = customer.create()
+        self.assertTrue(result)
+        self.assertEqual(customer.id, 1)
+
 
 class TestReservation(unittest.TestCase):
     """Test cases for Reservation class."""
@@ -589,6 +635,15 @@ class TestReservation(unittest.TestCase):
         """Test reservation creation with invalid ID calculation."""
         self.test_dir.mkdir(parents=True, exist_ok=True)
         self.reservations_file.write_text('[{"id": "invalid"}, {"id": null}]')
+        reservation = Reservation(self.customer.id, self.hotel.id)
+        result = reservation.create()
+        self.assertTrue(result)
+        self.assertEqual(reservation.id, 1)
+
+    def test_reservation_create_with_json_decode_error(self):
+        """Test reservation creation with JSONDecodeError."""
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        self.reservations_file.write_text('{"not": "a list"')
         reservation = Reservation(self.customer.id, self.hotel.id)
         result = reservation.create()
         self.assertTrue(result)
