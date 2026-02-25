@@ -28,10 +28,66 @@
     "habitaciones_disponibles": 199
   },
   {
-    "id": 5,
-    "nombre": "Grand Palace Hotel",
-    "estado": "Veracruz",
+    "id": 6,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
     "habitaciones": 200,
-    "habitaciones_disponibles": 199
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 8,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 10,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 12,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 14,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 16,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 18,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 20,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
+  },
+  {
+    "id": 22,
+    "nombre": "Fiesta Americana",
+    "estado": "Puebla",
+    "habitaciones": 200,
+    "habitaciones_disponibles": 200
   }
 ]
