@@ -49,7 +49,19 @@ def load_json_file(
             return True, data
 
     except json.JSONDecodeError as error:
-        logger.error("JSON inválido en %s.json: %s", file_type, error)
+        logger.error(
+            "JSON inválido en %s.json: %s",
+            file_type,
+            error,
+        )
+        return False, []
+
+    except IOError as error:
+        logger.error(
+            "Error de lectura en %s.json: %s",
+            file_type,
+            error,
+        )
         return False, []
 
 
@@ -650,7 +662,7 @@ class Reservation:
         return True
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     logger.info("Sistema de reservación de hoteles")
 
     # Crear hoteles
